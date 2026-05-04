@@ -1,1 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Baghada Plot Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <style>
+        #map {
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+// 🔹 Create map
+var map = L.map('map').setView([22.0, 87.0], 13);
+
+// 🔹 Google Satellite Basemap
+L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    subdomains: ['mt0','mt1','mt2','mt3'],
+    maxZoom: 20
+}).addTo(map);
+
+// 🔹 YOUR JSON URL
+var url = "https://raw.githubusercontent.com/hemanya2003/Baghada/main/Near_Baghda.json";
+
+// 🔹 Fetch GeoJSON
+fetch(url)
+.then(response => response.json())
+.then(data => {
+
+    var geoLayer = L.geoJSON(data, {
+
+        style: {
+            color: "red",
+            weight: 1,
+            fillOpacity: 0
+        },
+
+        onEachFeature: function(feature, layer) {
+
+            let plot = feature.properties.PLOT_NO || "N/A";
+            let village = feature.properties.VILL_NAME || "N/A";
+
+            layer.bindPopup(
+                "<b>Village:</b> " + village + "<br>" +
+                "<b>Plot No:</b> " + plot
+            );
+        }
+
+    }).addTo(map);
+
+    map.fitBounds(geoLayer.getBounds());
+
+})
+.catch(error => {
+    console.log("Error loading JSON:", error);
+});
+
+</script>
+
+</body>
+</html>
